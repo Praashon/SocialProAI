@@ -10,9 +10,12 @@ declare const puter: any;
 
 export const generateDrafts = async (
   idea: string,
-  tone: Tone,
+  tone: Tone
 ): Promise<generatedContent> => {
-  const prompt = `Generate social media drafts for six platforms: Instagram, Facebook, Twitter, LinkedIn, X, TikTok based on the following idea: ${idea} and tone: ${tone}
+  const prompt = `Generate social media drafts for six platforms: Instagram, Facebook, Twitter, LinkedIn, X, TikTok based on the following idea and tone.
+  
+  Idea: ${idea}
+  Tone: ${tone}
 
   Requirements:
   - LinkedIn: Professional, Insightful, Informative. (3–5 hashtags)
@@ -21,6 +24,7 @@ export const generateDrafts = async (
   - Facebook: Relatable, Community-focused, Casual. (0–2 hashtags)
   - TikTok: Raw, Authentic, Fast-paced. (3–6 hashtags)
   - Reddit: Informative, Engaging, Informative. (3–5 hashtags)
+  - Suggest aspect ratios: LinkedIn: 16:9, Twitter/X: 16:9, Instagram: 1:1, Facebook: 16:9, TikTok: 9:16, Reddit: 16:9
 
   RETURN ONLY a JSON object with structure and content (no markdown formatting):
   {
@@ -94,7 +98,7 @@ export const generateSpeech = async (text: string): Promise<string> => {
 export const generatePlatformImage = async (
   prompt: string,
   AspectRatio: aspectRatio,
-  ImageSize = imageSize,
+  ImageSize = imageSize
 ): Promise<string> => {
   try {
     const fullPrompt = `A professional, high-end social media graphic for: ${prompt}. Cinematic lightning, 8k resolution, photo-realistic. Aspect Ratio ${AspectRatio}`;
@@ -106,15 +110,16 @@ export const generatePlatformImage = async (
       });
     } catch (e) {
       console.warn("Gemini generation failed! Trying FLUX!", e);
+      try {
+        image = await puter.ai.txt2img(fullPrompt, {
+          model: "black-forest-labs/FLUX.1-schnell",
+        });
+      } catch (e2) {
+        console.warn("FLUX also failed! Using DEFAULT!", e2);
+        image = await puter.ai.txt2img(fullPrompt);
+      }
     }
-    try {
-      image = await puter.ai.txt2img(fullPrompt, {
-        model: "black-forest-labs/FLUX.1-schnell",
-      });
-    } catch (e2) {
-      console.warn("FLUX also failed! Using DEFAULT!", e2);
-      image = await puter.ai.txt2img(fullPrompt);
-    }
+
     if (image && image.src) {
       return image.src;
     }
