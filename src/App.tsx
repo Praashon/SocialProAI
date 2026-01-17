@@ -217,12 +217,12 @@ const App: React.FC = () => {
         <header className="mb-28 flex flex-col items-center">
           <div className="flex items-center gap-6 mb-12">
             <div className="px-4 py-1 rounded-full bg-emerald-950/20 border border-emerald-900/40 mono text-[9px] font-bold uppercase tracking-[0.25em] text-emerald-500">
-              SOCIALPRO ENGINE
+              SYNTHETIX INTELLIGENCE
             </div>
           </div>
 
           <h1 className="text-8xl md:text-9xl font-[800] tracking-[-0.06em] mb-10 text-center leading-[0.85] text-white">
-            SOCIAL<span className="text-emerald-500 font-black">PRO</span>
+            SYNTHETIX<span className="text-emerald-500 font-black">.AI</span>
           </h1>
           <p className="text-center text-slate-500 max-w-lg text-[10px] font-bold tracking-[0.5em] uppercase leading-relaxed opacity-60 mono">
             Next-Generation Influence Architecture
@@ -287,7 +287,7 @@ const App: React.FC = () => {
         <footer className="mt-56 mb-20 flex flex-col items-center gap-10">
           <div className="h-px w-48 bg-gradient-to-r from-transparent via-emerald-900/50 to-transparent"></div>
           <p className="mono text-slate-800 text-[9px] font-bold uppercase tracking-[0.8em]">
-            SOCIALPRO PROPRIETARY ENGINE // 2025
+            SYNTHETIX PROPRIETARY ENGINE // 2025
           </p>
         </footer>
       </div>

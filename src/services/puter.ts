@@ -95,7 +95,7 @@ export const generatePlatformImage = async (
   _targetImageSize: ImageSize = ImageSize.S1K, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<string> => {
   try {
-    const fullPrompt = `A professional, high-end social media graphic for: ${prompt}. Cinematic lightning, 8k resolution, photo-realistic. Aspect Ratio ${targetAspectRatio}`;
+    const fullPrompt = `A professional, high-end social media graphic for: ${prompt}. Cinematic lightning, 8k resolution. Aspect Ratio ${targetAspectRatio}`;
 
     let image;
     try {
