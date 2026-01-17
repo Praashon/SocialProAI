@@ -1,13 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Tone, type PlatformDraft, ImageSize, type AspectRatio } from "./types";
-import { generateDrafts, generatePlatformImage } from "./services/puter";
+import {
+  generateDrafts,
+  generatePlatformImage,
+  checkAuth,
+  signIn,
+} from "./services/puter";
+import { generateDraftsGemini } from "./services/gemini";
 import PlatformCard from "./components/PlatformCard";
+import AuthModal from "./components/AuthModal";
+import ApiKeyModal from "./components/ApiKeyModal";
+import WarningBanner from "./components/WarningBanner";
+
+type AuthMode = "checking" | "puter" | "gemini" | "guest";
 
 const App: React.FC = () => {
   const [idea, setIdea] = useState("");
   const [tone, setTone] = useState<Tone>(Tone.PROFESSIONAL);
   const [isLoading, setIsLoading] = useState(false);
   const [drafts, setDrafts] = useState<PlatformDraft[]>([]);
+  const [authMode, setAuthMode] = useState<AuthMode>("checking");
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      const isSignedIn = await checkAuth();
+      setAuthMode(isSignedIn ? "puter" : "guest");
+    };
+    initAuth();
+  }, []);
 
   useEffect(() => {
     const canvas = document.getElementById("bg-canvas") as HTMLCanvasElement;
@@ -154,12 +175,50 @@ const App: React.FC = () => {
     };
   }, []);
 
+  const handleLogin = async () => {
+    await signIn();
+    // Puter sign in usually reloads or handles auth, but let's reconfirm
+    const isSignedIn = await checkAuth();
+    if (isSignedIn) setAuthMode("puter");
+  };
+
+  const handleFallback = () => {
+    const storedKey = localStorage.getItem("gemini_api_key");
+    if (storedKey) {
+      setAuthMode("gemini");
+    } else {
+      setAuthMode("gemini");
+      setShowApiKeyModal(true);
+    }
+  };
+
+  const handleApiKeySubmit = (key: string) => {
+    localStorage.setItem("gemini_api_key", key);
+    setShowApiKeyModal(false);
+  };
+
   const handleGenerate = async () => {
     if (!idea.trim()) return;
     setIsLoading(true);
     try {
-      const result = await generateDrafts(idea, tone);
-      setDrafts(result.drafts.map((d) => ({ ...d, isGeneratingImage: false })));
+      let result;
+      if (authMode === "puter") {
+        result = await generateDrafts(idea, tone);
+      } else if (authMode === "gemini") {
+        const key = localStorage.getItem("gemini_api_key");
+        if (!key) {
+          setShowApiKeyModal(true);
+          setIsLoading(false);
+          return;
+        }
+        result = await generateDraftsGemini(idea, tone, key);
+      }
+
+      if (result) {
+        setDrafts(
+          result.drafts.map((d) => ({ ...d, isGeneratingImage: false })),
+        );
+      }
     } catch (error) {
       console.error(error);
       alert("Failed to generate drafts. Please try again.");
@@ -173,6 +232,13 @@ const App: React.FC = () => {
     AspectRatio: AspectRatio,
     size: ImageSize,
   ) => {
+    if (authMode === "gemini") {
+      alert(
+        "Image generation is disabled in fallback mode. Please login with Puter to use this feature.",
+      );
+      return;
+    }
+
     const draftIndex = drafts.findIndex((d) => d.platform === platform);
     if (draftIndex === -1) return;
 
@@ -211,8 +277,20 @@ const App: React.FC = () => {
     );
   };
 
+  if (authMode === "checking") return null;
+
   return (
     <div className="min-h-screen bg-transparent text-slate-300 selection:bg-emerald-500/20 relative z-10">
+      {authMode === "guest" && (
+        <AuthModal onLogin={handleLogin} onFallback={handleFallback} />
+      )}
+
+      {authMode === "gemini" && showApiKeyModal && (
+        <ApiKeyModal onSubmit={handleApiKeySubmit} />
+      )}
+
+      {authMode === "gemini" && <WarningBanner />}
+
       <div className="max-w-7xl mx-auto px-6 py-16 lg:py-28">
         <header className="mb-28 flex flex-col items-center">
           <div className="flex items-center gap-6 mb-12">
