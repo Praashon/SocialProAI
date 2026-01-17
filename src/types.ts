@@ -1,5 +1,5 @@
 export enum Tone {
-  PROFESSIONAL = "Professiona",
+  PROFESSIONAL = "Professional",
   WITTY = "Witty",
   URGENT = "Urgent",
   INSPIRATIONAL = "Inspirational",
@@ -15,13 +15,13 @@ export enum Platform {
   FACEBOOK = "Facebook",
 }
 
-export enum imageSize {
+export enum ImageSize {
   S1K = "1K",
   S2K = "2K",
   S4K = "4K",
 }
 
-export type aspectRatio =
+export type AspectRatio =
   | "1:1"
   | "2:3"
   | "3:2"
@@ -33,14 +33,14 @@ export type aspectRatio =
   | "16:9"
   | "21:9";
 
-export interface platformDraft {
+export interface PlatformDraft {
   platform: Platform;
   content: string;
-  suggestedAspectRatio: aspectRatio;
+  suggestedAspectRatio: AspectRatio;
   imageUrl?: string;
   isGeneratingImage: boolean;
 }
 
-export interface generatedContent {
-  drafts: platformDraft[];
+export interface GeneratedContent {
+  drafts: PlatformDraft[];
 }

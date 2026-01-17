@@ -1,19 +1,13 @@
-import {
-  Platform,
-  Tone,
-  generatedContent,
-  aspectRatio,
-  imageSize,
-} from "../types";
+import { Tone, GeneratedContent, AspectRatio, ImageSize } from "../types";
 
 declare const puter: any;
 
 export const generateDrafts = async (
   idea: string,
-  tone: Tone
-): Promise<generatedContent> => {
+  tone: Tone,
+): Promise<GeneratedContent> => {
   const prompt = `Generate social media drafts for six platforms: Instagram, Facebook, Twitter, LinkedIn, X, TikTok based on the following idea and tone.
-  
+
   Idea: ${idea}
   Tone: ${tone}
 
@@ -97,11 +91,11 @@ export const generateSpeech = async (text: string): Promise<string> => {
 
 export const generatePlatformImage = async (
   prompt: string,
-  AspectRatio: aspectRatio,
-  ImageSize = imageSize
+  targetAspectRatio: AspectRatio,
+  _targetImageSize: ImageSize = ImageSize.S1K, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<string> => {
   try {
-    const fullPrompt = `A professional, high-end social media graphic for: ${prompt}. Cinematic lightning, 8k resolution, photo-realistic. Aspect Ratio ${AspectRatio}`;
+    const fullPrompt = `A professional, high-end social media graphic for: ${prompt}. Cinematic lightning, 8k resolution, photo-realistic. Aspect Ratio ${targetAspectRatio}`;
 
     let image;
     try {
