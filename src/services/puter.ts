@@ -2,6 +2,22 @@ import { Tone, GeneratedContent, AspectRatio, ImageSize } from "../types";
 
 declare const puter: any;
 
+export const checkAuth = async (): Promise<boolean> => {
+  try {
+    return !!(await puter.auth.isSignedIn());
+  } catch {
+    return false;
+  }
+};
+
+export const signIn = async (): Promise<void> => {
+  try {
+    await puter.auth.signIn();
+  } catch (error) {
+    console.error("Sign in failed", error);
+  }
+};
+
 export const generateDrafts = async (
   idea: string,
   tone: Tone,
