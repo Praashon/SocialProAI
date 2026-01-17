@@ -292,35 +292,35 @@ const App: React.FC = () => {
       {authMode === "gemini" && <WarningBanner />}
 
       <div className="max-w-7xl mx-auto px-6 py-16 lg:py-28">
-        <header className="mb-28 flex flex-col items-center">
-          <div className="flex items-center gap-6 mb-12">
-            <div className="px-4 py-1 rounded-full bg-emerald-950/20 border border-emerald-900/40 mono text-[9px] font-bold uppercase tracking-[0.25em] text-emerald-500">
+        <header className="mb-16 lg:mb-28 flex flex-col items-center">
+          <div className="flex items-center gap-6 mb-8 lg:mb-12">
+            <div className="px-4 py-1 rounded-full bg-emerald-950/20 border border-emerald-900/40 mono text-[8px] lg:text-[9px] font-bold uppercase tracking-[0.25em] text-emerald-500">
               SYNTHETIX INTELLIGENCE
             </div>
           </div>
 
-          <h1 className="text-8xl md:text-9xl font-[800] tracking-[-0.06em] mb-10 text-center leading-[0.85] text-white">
+          <h1 className="text-5xl md:text-8xl lg:text-9xl font-[800] tracking-[-0.06em] mb-6 lg:mb-10 text-center leading-[0.85] text-white">
             SYNTHETIX<span className="text-emerald-500 font-black">.AI</span>
           </h1>
-          <p className="text-center text-slate-500 max-w-lg text-[10px] font-bold tracking-[0.5em] uppercase leading-relaxed opacity-60 mono">
+          <p className="text-center text-slate-500 max-w-xs lg:max-w-lg text-[8px] lg:text-[10px] font-bold tracking-[0.3em] lg:tracking-[0.5em] uppercase leading-relaxed opacity-60 mono px-4">
             Next-Generation Influence Architecture
           </p>
         </header>
 
-        <div className="max-w-4xl mx-auto mb-36 relative group">
+        <div className="max-w-4xl mx-auto mb-20 lg:mb-36 relative group">
           <div className="relative bg-[#0a0f0d] border border-emerald-900/30 rounded-none p-1 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] transition-all group-hover:border-emerald-500/30">
-            <div className="flex flex-col md:flex-row items-stretch">
+            <div className="flex flex-col md:flex-row items-stretch gap-2 md:gap-0">
               <input
                 type="text"
                 placeholder="DEFINE CONTENT STRATEGY..."
-                className="flex-grow bg-transparent border-none px-12 py-10 focus:ring-0 outline-none text-xl text-white placeholder:text-slate-800 font-bold tracking-tight uppercase"
+                className="flex-grow bg-transparent border-none px-6 py-6 lg:px-12 lg:py-10 focus:ring-0 outline-none text-base lg:text-xl text-white placeholder:text-slate-800 font-bold tracking-tight uppercase"
                 value={idea}
                 onChange={(e) => setIdea(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
               />
-              <div className="flex border-t md:border-t-0 md:border-l border-emerald-900/20">
+              <div className="flex flex-col md:flex-row border-t md:border-t-0 md:border-l border-emerald-900/20">
                 <select
-                  className="bg-transparent border-none px-10 outline-none mono text-[10px] font-bold uppercase tracking-widest text-emerald-600 hover:text-emerald-400 transition-all cursor-pointer appearance-none"
+                  className="bg-transparent border-none px-6 py-4 md:px-10 outline-none mono text-[10px] font-bold uppercase tracking-widest text-emerald-600 hover:text-emerald-400 transition-all cursor-pointer appearance-none border-b md:border-b-0 border-emerald-900/20 md:border-r"
                   value={tone}
                   onChange={(e) => setTone(e.target.value as Tone)}
                 >
@@ -333,7 +333,7 @@ const App: React.FC = () => {
                 <button
                   disabled={isLoading || !idea.trim()}
                   onClick={handleGenerate}
-                  className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-900 disabled:text-slate-700 text-black font-extrabold text-[12px] uppercase tracking-[0.25em] px-16 transition-all"
+                  className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-900 disabled:text-slate-700 text-black font-extrabold text-[12px] uppercase tracking-[0.25em] py-4 px-10 lg:px-16 transition-all whitespace-nowrap"
                 >
                   {isLoading ? "..." : "GENERATE"}
                 </button>

@@ -8,8 +8,8 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSubmit }) => {
   const [key, setKey] = useState("");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="bg-[#0a0f0d] border border-emerald-900/30 p-8 w-full max-w-md shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+      <div className="bg-[#0a0f0d] border border-emerald-900/30 p-6 md:p-8 w-full max-w-md shadow-2xl relative">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-900 to-emerald-500"></div>
 
         <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
