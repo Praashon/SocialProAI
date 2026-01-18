@@ -31,7 +31,24 @@ export const generateDraftsGemini = async (
     ]
   }`;
 
-  const makeRequest = async (model: string) => {
+  const makeRequest = async (model: string, useTools: boolean = true) => {
+    const payload: any = {
+      contents: [{ parts: [{ text: prompt }] }],
+    };
+
+    if (useTools) {
+      payload.tools = [
+        {
+          google_search_retrieval: {
+            dynamic_retrieval_config: {
+              mode: "dynamic",
+              dynamic_threshold: 0.7,
+            },
+          },
+        },
+      ];
+    }
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
@@ -39,25 +56,13 @@ export const generateDraftsGemini = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          tools: [
-            {
-              google_search_retrieval: {
-                dynamic_retrieval_config: {
-                  mode: "dynamic",
-                  dynamic_threshold: 0.7,
-                },
-              },
-            },
-          ],
-        }),
+        body: JSON.stringify(payload),
       },
     );
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`Gemini API Error (${model}):`, errText);
+      console.error(`Gemini API Error (${model}, tools=${useTools}):`, errText);
       throw new Error(`Gemini API Error (${model}): ${errText}`);
     }
 
@@ -67,10 +72,18 @@ export const generateDraftsGemini = async (
   try {
     let data;
     try {
-      data = await makeRequest("gemini-2.0-flash-exp");
+      data = await makeRequest("gemini-2.0-flash-exp", true);
     } catch (e) {
-      console.warn("Gemini 2.0 Flash failed, trying 1.5 Flash", e);
-      data = await makeRequest("gemini-1.5-flash");
+      console.warn("Gemini 2.0 Flash failed, trying 1.5 Flash (with tools)", e);
+      try {
+        data = await makeRequest("gemini-1.5-flash", true);
+      } catch (e2) {
+        console.warn(
+          "Gemini 1.5 Flash (tools) failed, trying 1.5 Flash (no tools)",
+          e2,
+        );
+        data = await makeRequest("gemini-1.5-flash", false);
+      }
     }
 
     let text = data.candidates[0].content.parts[0].text;
@@ -90,7 +103,7 @@ export const generateDraftsGemini = async (
 export const generateImageGemini = async (
   prompt: string,
   aspectRatio: AspectRatio,
-  size: ImageSize, // eslint-disable-line @typescript-eslint/no-unused-vars
+  size: ImageSize,
   apiKey: string,
 ): Promise<string> => {
   const fullPrompt = `High quality, aesthetic, professional social media image. ${prompt}. Aspect Ratio: ${aspectRatio}. 8k resolution, cinematic lighting.`;
