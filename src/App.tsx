@@ -6,7 +6,7 @@ import {
   checkAuth,
   signIn,
 } from "./services/puter";
-import { generateDraftsGemini } from "./services/gemini";
+import { generateDraftsGemini, generateImageGemini } from "./services/gemini";
 import PlatformCard from "./components/PlatformCard";
 import AuthModal from "./components/AuthModal";
 import ApiKeyModal from "./components/ApiKeyModal";
@@ -21,6 +21,7 @@ const App: React.FC = () => {
   const [drafts, setDrafts] = useState<PlatformDraft[]>([]);
   const [authMode, setAuthMode] = useState<AuthMode>("checking");
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [sessionUsage, setSessionUsage] = useState(0);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -212,6 +213,7 @@ const App: React.FC = () => {
           return;
         }
         result = await generateDraftsGemini(idea, tone, key);
+        setSessionUsage((prev) => prev + 1);
       }
 
       if (result) {
@@ -232,13 +234,6 @@ const App: React.FC = () => {
     AspectRatio: AspectRatio,
     size: ImageSize,
   ) => {
-    if (authMode === "gemini") {
-      alert(
-        "Image generation is disabled in fallback mode. Please login with Puter to use this feature.",
-      );
-      return;
-    }
-
     const draftIndex = drafts.findIndex((d) => d.platform === platform);
     if (draftIndex === -1) return;
 
@@ -249,11 +244,32 @@ const App: React.FC = () => {
     );
 
     try {
-      const imageUrl = await generatePlatformImage(
-        drafts[draftIndex].content,
-        AspectRatio,
-        size,
-      );
+      let imageUrl;
+      if (authMode === "gemini") {
+        const key = localStorage.getItem("gemini_api_key");
+        if (!key) {
+          setDrafts((prev) =>
+            prev.map((d, i) =>
+              i === draftIndex ? { ...d, isGeneratingImage: false } : d,
+            ),
+          );
+          return;
+        }
+        imageUrl = await generateImageGemini(
+          drafts[draftIndex].content,
+          AspectRatio,
+          size,
+          key,
+        );
+        setSessionUsage((prev) => prev + 1);
+      } else {
+        imageUrl = await generatePlatformImage(
+          drafts[draftIndex].content,
+          AspectRatio,
+          size,
+        );
+      }
+
       setDrafts((prev) =>
         prev.map((d, i) =>
           i === draftIndex ? { ...d, imageUrl, isGeneratingImage: false } : d,
@@ -261,6 +277,7 @@ const App: React.FC = () => {
       );
     } catch (error) {
       console.error(error);
+      alert("Image Generation Failed.");
       setDrafts((prev) =>
         prev.map((d, i) =>
           i === draftIndex ? { ...d, isGeneratingImage: false } : d,
@@ -290,6 +307,21 @@ const App: React.FC = () => {
       )}
 
       {authMode === "gemini" && <WarningBanner />}
+
+      {authMode === "gemini" && (
+        <div className="fixed top-4 right-4 z-50">
+          <div className="bg-[#0a0f0d] border border-emerald-900/30 px-4 py-2 rounded shadow-2xl backdrop-blur-md">
+            <div className="flex flex-col items-end">
+              <span className="mono text-[8px] font-bold uppercase tracking-[0.2em] text-emerald-500">
+                SESSION_USAGE
+              </span>
+              <span className="text-white font-mono text-sm font-bold">
+                {sessionUsage} <span className="text-emerald-900">Reqs</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-6 py-16 lg:py-28">
         <header className="mb-16 lg:mb-28 flex flex-col items-center">
