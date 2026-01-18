@@ -223,7 +223,11 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to generate drafts. Please try again.");
+      let message = "Failed to generate drafts. Please try again.";
+      if (error instanceof Error) {
+        message += `\nError: ${error.message}`;
+      }
+      alert(message);
     } finally {
       setIsLoading(false);
     }
