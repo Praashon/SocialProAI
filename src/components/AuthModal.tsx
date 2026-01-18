@@ -39,7 +39,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onLogin, onFallback }) => {
             onClick={onFallback}
             className="w-full bg-transparent border border-emerald-900/50 hover:border-emerald-500/50 text-emerald-500 hover:text-emerald-400 font-bold text-sm py-4 uppercase tracking-widest transition-all"
           >
-            Use Free Gemini API
+            Use Free OpenRouter API
           </button>
         </div>
       </div>

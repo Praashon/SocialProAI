@@ -13,15 +13,15 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSubmit }) => {
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-900 to-emerald-500"></div>
 
         <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          GEMINI API ACCESS
+          OPENROUTER ACCESS
         </h2>
         <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-          Enter your free Google Gemini API key to continue without Puter.
+          Enter your free OpenRouter API key to continue without Puter.
         </p>
 
         <input
           type="password"
-          placeholder="ENTER API KEY..."
+          placeholder="ENTER OPENROUTER KEY..."
           value={key}
           onChange={(e) => setKey(e.target.value)}
           className="w-full bg-black/50 border border-emerald-900/30 px-4 py-3 mb-6 focus:border-emerald-500/50 outline-none text-emerald-500 placeholder:text-emerald-900/50 font-mono text-sm"
@@ -37,7 +37,7 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSubmit }) => {
 
         <div className="mt-4 text-center">
           <a
-            href="https://aistudio.google.com/app/apikey"
+            href="https://openrouter.ai/keys"
             target="_blank"
             rel="noreferrer"
             className="text-emerald-900 hover:text-emerald-500 text-[10px] font-mono uppercase tracking-widest underline transition-colors"
