@@ -79,10 +79,19 @@ export const generateDraftsGemini = async (
         data = await makeRequest("gemini-1.5-flash", true);
       } catch (e2) {
         console.warn(
-          "Gemini 1.5 Flash (tools) failed, trying 1.5 Flash (no tools)",
+          "Gemini 1.5 Flash (tools) failed, trying gemini-pro (safe mode)",
           e2,
         );
-        data = await makeRequest("gemini-1.5-flash", false);
+        try {
+          // gemini-pro is the most widely available stable model on v1beta
+          data = await makeRequest("gemini-pro", false);
+        } catch (e3) {
+          console.warn(
+            "Gemini Pro failed, trying gemini-1.5-flash-latest (last resort)",
+            e3,
+          );
+          data = await makeRequest("gemini-1.5-flash-latest", false);
+        }
       }
     }
 
