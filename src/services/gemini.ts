@@ -100,18 +100,21 @@ export const generateDraftsGemini = async (
   try {
     let data;
     try {
-      data = await makeRequest("gemini-2.0-flash", true);
+      // 1. Try Gemini 1.5 Flash (Standard, Free, Fast) with Search
+      data = await makeRequest("gemini-1.5-flash", true);
     } catch (e1) {
+      console.warn("Gemini 1.5 Flash (Tools) failed, trying 2.0 Flash", e1);
       try {
-        data = await makeRequest("gemini-1.5-flash", true);
+        // 2. Try Gemini 2.0 Flash (Experimental, Free) with Search
+        data = await makeRequest("gemini-2.0-flash", true);
       } catch (e2) {
-        try {
-          // Fallback: No Tools (Standard Text Gen) - High Success Rate
-          data = await makeRequest("gemini-1.5-flash", false);
-        } catch (e3) {
-          // Final Fallback: Legacy Stable Model (No Tools)
-          data = await makeRequest("gemini-pro", false);
-        }
+        console.warn(
+          "Gemini 2.0 Flash failed, trying 1.5 Flash (No Tools)",
+          e2,
+        );
+        // 3. Last Resort: Gemini 1.5 Flash (No Tools) - Pure text generation
+        // Strictly avoiding "gemini-pro" to prevent any confusion with paid tiers
+        data = await makeRequest("gemini-1.5-flash", false);
       }
     }
 
