@@ -27,57 +27,20 @@ export const generateDraftsGemini = async (
            "content": "...",
            "suggestedAspectRatio":"16:9"
         },
-        {
-           "platform": "Facebook",
-           "content": "...",
-           "suggestedAspectRatio":"16:9"
-        },
-        {
-           "platform": "Twitter",
-           "content": "...",
-           "suggestedAspectRatio":"16:9"
-        },
-        {
-           "platform": "LinkedIn",
-           "content": "...",
-           "suggestedAspectRatio":"16:9"
-        },
-        {
-           "platform": "X",
-           "content": "...",
-           "suggestedAspectRatio":"16:9"
-        },
-        {
-           "platform": "TikTok",
-           "content": "...",
-           "suggestedAspectRatio":"16:9"
-        },
-        {
-           "platform": "Reddit",
-           "content": "...",
-           "suggestedAspectRatio":"16:9"
-        }
+        ...
     ]
   }`;
 
-  try {
+  const makeRequest = async (model: string) => {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
+          contents: [{ parts: [{ text: prompt }] }],
           tools: [
             {
               google_search_retrieval: {
@@ -94,19 +57,27 @@ export const generateDraftsGemini = async (
 
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(
-        `Gemini API Error: ${response.status} - ${response.statusText}`,
-      );
+      console.error(`Gemini API Error (${model}):`, errText);
+      throw new Error(`Gemini API Error (${model}): ${errText}`);
     }
 
-    const data = await response.json();
-    let text = data.candidates[0].content.parts[0].text;
+    return response.json();
+  };
 
+  try {
+    let data;
+    try {
+      data = await makeRequest("gemini-2.0-flash");
+    } catch (e) {
+      console.warn("Gemini 2.0 Flash failed, trying 1.5 Flash", e);
+      data = await makeRequest("gemini-1.5-flash");
+    }
+
+    let text = data.candidates[0].content.parts[0].text;
     text = text
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
-
     return JSON.parse(text);
   } catch (error) {
     if (error instanceof Error) {
