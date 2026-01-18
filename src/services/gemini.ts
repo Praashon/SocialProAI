@@ -1,4 +1,4 @@
-import { Tone, GeneratedContent, AspectRatio, ImageSize } from "../types";
+import { Tone, GeneratedContent } from "../types";
 
 export const generateDraftsGemini = async (
   idea: string,
@@ -27,28 +27,40 @@ export const generateDraftsGemini = async (
            "content": "...",
            "suggestedAspectRatio":"16:9"
         },
-        ...
+        {
+           "platform": "Facebook",
+           "content": "...",
+           "suggestedAspectRatio":"16:9"
+        },
+        {
+           "platform": "Twitter",
+           "content": "...",
+           "suggestedAspectRatio":"16:9"
+        },
+        {
+           "platform": "LinkedIn",
+           "content": "...",
+           "suggestedAspectRatio":"16:9"
+        },
+        {
+           "platform": "X",
+           "content": "...",
+           "suggestedAspectRatio":"16:9"
+        },
+        {
+           "platform": "TikTok",
+           "content": "...",
+           "suggestedAspectRatio":"16:9"
+        },
+        {
+           "platform": "Reddit",
+           "content": "...",
+           "suggestedAspectRatio":"16:9"
+        }
     ]
   }`;
 
-  const makeRequest = async (model: string, useTools: boolean = true) => {
-    const payload: any = {
-      contents: [{ parts: [{ text: prompt }] }],
-    };
-
-    if (useTools) {
-      payload.tools = [
-        {
-          google_search_retrieval: {
-            dynamic_retrieval_config: {
-              mode: "dynamic",
-              dynamic_threshold: 0.7,
-            },
-          },
-        },
-      ];
-    }
-
+  const makeRequest = async (model: string) => {
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
@@ -56,13 +68,24 @@ export const generateDraftsGemini = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [
+            {
+              google_search_retrieval: {
+                dynamic_retrieval_config: {
+                  mode: "dynamic",
+                  dynamic_threshold: 0.7,
+                },
+              },
+            },
+          ],
+        }),
       },
     );
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`Gemini API Error (${model}, tools=${useTools}):`, errText);
       throw new Error(`Gemini API Error (${model}): ${errText}`);
     }
 
@@ -72,26 +95,12 @@ export const generateDraftsGemini = async (
   try {
     let data;
     try {
-      data = await makeRequest("gemini-2.0-flash-exp", true);
-    } catch (e) {
-      console.warn("Gemini 2.0 Flash failed, trying 1.5 Flash (with tools)", e);
+      data = await makeRequest("gemini-2.0-flash");
+    } catch {
       try {
-        data = await makeRequest("gemini-1.5-flash", true);
-      } catch (e2) {
-        console.warn(
-          "Gemini 1.5 Flash (tools) failed, trying gemini-pro (safe mode)",
-          e2,
-        );
-        try {
-          // gemini-pro is the most widely available stable model on v1beta
-          data = await makeRequest("gemini-pro", false);
-        } catch (e3) {
-          console.warn(
-            "Gemini Pro failed, trying gemini-1.5-flash-latest (last resort)",
-            e3,
-          );
-          data = await makeRequest("gemini-1.5-flash-latest", false);
-        }
+        data = await makeRequest("gemini-1.5-flash");
+      } catch {
+        data = await makeRequest("gemini-pro");
       }
     }
 
@@ -106,55 +115,5 @@ export const generateDraftsGemini = async (
       throw new Error(error.message);
     }
     throw new Error("Failed to generate drafts with Gemini");
-  }
-};
-
-export const generateImageGemini = async (
-  prompt: string,
-  aspectRatio: AspectRatio,
-  size: ImageSize,
-  apiKey: string,
-): Promise<string> => {
-  const fullPrompt = `High quality, aesthetic, professional social media image. ${prompt}. Aspect Ratio: ${aspectRatio}. 8k resolution, cinematic lighting.`;
-
-  try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          instances: [
-            {
-              prompt: fullPrompt,
-            },
-          ],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: aspectRatio,
-          },
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      throw new Error(`Imagen 3 API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    if (
-      data.predictions &&
-      data.predictions[0] &&
-      data.predictions[0].bytesBase64Encoded
-    ) {
-      return `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
-    }
-
-    throw new Error("No image data returned from Gemini");
-  } catch (error) {
-    console.error(error);
-    throw new Error("Failed to generate image with Gemini");
   }
 };
